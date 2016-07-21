@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mandelbrot</title>
+    <!-- this meta viewport tag makes stuff work on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--make the chrome nav bar match the background-->
+    <meta name="theme-color" content="#272822">
+    <link rel="icon" href="/favicon.png">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" media="screen" href="canvas_demo.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+</head>
+<body>
+<div class="config">
+    <h1>Mandelbrot Set</h1>
+    TODO add math explination
+    <div class="line">
+        Canvas Resolution:
+        <span class="right">
+            <input class="wide_num" type="number" id="res_x" value="800"> x
+            <input class="wide_num" type="number" id="res_y" value="800">
+            </span>
+    </div>
+    <div class="line">
+        Iterations:
+        <span class="right">
+            <input class="wide_num" type="number" id="iterations" value="1024">
+        </span>
+    </div>
+    <div class="line">
+        c
+        <span class="right">
+            <input class="wide_num" type="number" id="c_real" value="-0.8"> +
+            <input class="wide_num" type="number" id="c_imag" value="0.156"> i
+        </span>
+    </div>
+    <div class="line">
+        Animate julia set
+        <span class="right">
+                <input type="checkbox" id="fractal_julia_animated" checked="checked">
+                <label for="fractal_julia_animated"></label>
+            </span>
+    </div>
+    <div class="line">
+        Fractal:
+        <span class="right wide_column">
+                <input type="radio" name="wave_type" id="fractal_mandelbrot" value="fractal_mandelbrot">
+                <label class="full_wide" for="fractal_mandelbrot">Mandelbrot</label> <br>
+                <input type="radio" name="wave_type" id="fractal_julia" value="fractal_julia" checked="checked">
+                <label class="full_wide" for="fractal_julia">Julia, z -> z^2 + c</label> <br>
+            </span>
+    </div>
+    <!--<div class="line">-->
+    <!--label-->
+    <!--<span class="right">-->
+    <!--<input class="wide_num" type="number" id="id" value="default">-->
+    <!--</span>-->
+    <!--</div>-->
+</div>
+<canvas id="main_canvas" width="800" height="800"></canvas>
+</body>
+<script src="build/bundle.js"></script>
+</html>
