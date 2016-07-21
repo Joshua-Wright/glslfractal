@@ -149,7 +149,7 @@ n_c_imag.onkeyup = function () { config.c_imag = Number(n_c_imag.value); };
         }
     };
     canvas.onmousedown = function () {canvas_is_clicked = true;};
-    canvas.onmouseup = function () {canvas_is_clicked = false;};
+    window.onmouseup = function () {canvas_is_clicked = false;};
 })();
 // canvas zoom
 canvas.onwheel = function (e) {
