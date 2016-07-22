@@ -16,18 +16,30 @@
 <body>
 <div class="config">
     <h1>Mandelbrot Set</h1>
-    TODO add math explination
+    Drag with your mose on the first and second boxes to pan around, and zoom with the mousewheel.
+    <br>
+    <br>
+    The first box is an overview.
+    <br>
+    The second one shows a zoomed-in view of a particular area.
+    <br>
+    The last one shows a Julia set seeded with the complex point under the crosshair of the second box.
+    <br>
+    <br>
+    Math: <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot Set</a>,
+    <a href="https://en.wikipedia.org/wiki/Julia_set">Julia Set</a>.
+    <a href="https://github.com/Joshua-Wright/glslfractal">Code on Github</a>
     <div class="line">
         Canvas Resolution:
         <span class="right">
-            <input class="wide_num" type="number" id="res_x" value="800"> x
-            <input class="wide_num" type="number" id="res_y" value="800">
+            <input class="wide_num" type="number" id="res_x" value="500"> x
+            <input class="wide_num" type="number" id="res_y" value="500">
             </span>
     </div>
     <div class="line">
         Iterations:
         <span class="right">
-            <input class="wide_num" type="number" id="iterations" value="1024">
+            <input class="wide_num" type="number" id="iterations" value="512">
         </span>
     </div>
     <div class="line">
@@ -38,19 +50,17 @@
         </span>
     </div>
     <div class="line">
-        Animate julia set
+        Automatic movement (uncheck to drag)
         <span class="right">
                 <input type="checkbox" id="fractal_julia_animated" checked="checked">
                 <label for="fractal_julia_animated"></label>
             </span>
     </div>
     <div class="line">
-        Fractal:
-        <span class="right wide_column">
-                <input type="radio" name="wave_type" id="fractal_mandelbrot" value="fractal_mandelbrot">
-                <label class="full_wide" for="fractal_mandelbrot">Mandelbrot</label> <br>
-                <input type="radio" name="wave_type" id="fractal_julia" value="fractal_julia" checked="checked">
-                <label class="full_wide" for="fractal_julia">Julia, z -> z^2 + c</label> <br>
+        Run render (uncheck to pause rendering)
+        <span class="right">
+                <input type="checkbox" id="render_running" checked="checked">
+                <label for="render_running"></label>
             </span>
     </div>
     <!--<div class="line">-->
@@ -60,7 +70,9 @@
     <!--</span>-->
     <!--</div>-->
 </div>
-<canvas id="main_canvas" width="800" height="800"></canvas>
+<canvas id="canvas_mandelbrot_full" width="500" height="500"></canvas>
+<canvas id="canvas_mandelbrot_zoom" width="500" height="500"></canvas>
+<canvas id="canvas_julia" width="500" height="500"></canvas>
 </body>
 <script src="build/bundle.js"></script>
 </html>

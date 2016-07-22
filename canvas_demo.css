@@ -14,7 +14,6 @@ div.config {
     line-height: 1.5;
     color: #F8F8F2;
     background: #272822;
-
     padding: 1em;
 }
 
@@ -156,7 +155,7 @@ input[type="radio"]:checked + label {
 }
 
 input.wide_num {
-    width: 60px;
+    width: 100px;
 }
 
 input.full_wide {

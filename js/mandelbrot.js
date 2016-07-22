@@ -2,7 +2,7 @@
  * Created by j0sh on 7/19/16.
  */
 
-var fractalShader = require("shaders/fractal.glsl");
+var fractalShader      = require("shaders/fractal.glsl");
 var vertexShaderString = "attribute vec2 position;\nvoid main() { gl_Position = vec4(position, 0.0, 1.0); }";
 
 function compileShader(shaderSource, shaderType, context) {
@@ -42,7 +42,7 @@ function setupWebglProgram(context, vertexShader, fragmentShader) {
     context.linkProgram(program);
     context.useProgram(program);
 
-    var vertexData = new Float32Array([
+    var vertexData       = new Float32Array([
         -1.0, 1.0, // top left
         -1.0, -1.0, // bottom left
         1.0, 1.0, // top right
@@ -63,133 +63,208 @@ function setupWebglProgram(context, vertexShader, fragmentShader) {
     );
     return program;
 }
-
-
-var canvas = document.getElementById("main_canvas");
-var context = canvas.getContext("webgl");
-var vertexShader = compileShader(vertexShaderString, context.VERTEX_SHADER, context);
-
 /**
  * setup our shader with our particular options
+ * @param context html rendering context
+ * @param vertexShader vertex shader belonging to this context
  * @param iterations number of iterations
  * @param fractal_type function name in the glsl code. Currently accepts "mandelbrot" or "julia"
  */
-function reCompileShader(iterations, fractal_type) {
+function reCompileShader(context, vertexShader, iterations, fractal_type) {
+    var header = "#define NUMBER_OF_ITERATIONS " + iterations + "\n";
+    if (fractal_type == "mandelbrot full") {
+        header += "#define FRACTAL_FUNC mandelbrot\n";
+        header += "#define SHOW_PREVIEW\n";
+        header += "#define ZOOMABLE 0\n";
+    } else if (fractal_type == "mandelbrot zoom") {
+        header += "#define FRACTAL_FUNC mandelbrot\n";
+        header += "#define ZOOMABLE 1\n";
+    } else if (fractal_type == "julia") {
+        header += "#define FRACTAL_FUNC julia\n";
+        header += "#define ZOOMABLE 0\n";
+    }
     var newFragmentShader = compileShader(
-        fractalShader
-            .replace("__NUMBER_OF_ITERATIONS", iterations)
-            .replace("__FRACTAL_FUNC", fractal_type)
-        ,
+        header + fractalShader,
         context.FRAGMENT_SHADER,
         context
     );
-    program = setupWebglProgram(context, vertexShader, newFragmentShader);
+    return setupWebglProgram(context, vertexShader, newFragmentShader);
 }
-reCompileShader(1024, "julia");
+
+
+var canvas_mandelbrot_full  = document.getElementById("canvas_mandelbrot_full");
+var canvas_mandelbrot_zoom  = document.getElementById("canvas_mandelbrot_zoom");
+var canvas_julia            = document.getElementById("canvas_julia");
+var context_mandelbrot_full = canvas_mandelbrot_full.getContext("webgl");
+var context_mandelbrot_zoom = canvas_mandelbrot_zoom.getContext("webgl");
+var context_julia           = canvas_julia.getContext("webgl");
+
+var vertexShader_mandelbrot_full = compileShader(vertexShaderString, context_julia.VERTEX_SHADER, context_mandelbrot_full);
+var vertexShader_mandelbrot_zoom = compileShader(vertexShaderString, context_julia.VERTEX_SHADER, context_mandelbrot_zoom);
+var vertexShader_julia           = compileShader(vertexShaderString, context_julia.VERTEX_SHADER, context_julia);
+
+var program_julia;
+var program_mandelbrot_full;
+var program_mandelbrot_zoom;
+function compileAllShaders(iterations) {
+    program_julia           = reCompileShader(context_julia, vertexShader_julia, iterations, "julia");
+    program_mandelbrot_full = reCompileShader(context_mandelbrot_full, vertexShader_mandelbrot_full, iterations, "mandelbrot full");
+    program_mandelbrot_zoom = reCompileShader(context_mandelbrot_zoom, vertexShader_mandelbrot_zoom, iterations, "mandelbrot zoom");
+}
+
 
 // HTML elements
-var n_res_x = document.getElementById("res_x");
-var n_res_y = document.getElementById("res_y");
-var n_iterations = document.getElementById("iterations");
-var n_check_mandelbrot = document.getElementById("fractal_mandelbrot");
-var n_check_julia = document.getElementById("fractal_julia");
+var n_res_x                = document.getElementById("res_x");
+var n_res_y                = document.getElementById("res_y");
+var n_iterations           = document.getElementById("iterations");
 var n_check_julia_animated = document.getElementById("fractal_julia_animated");
-var n_c_real = document.getElementById("c_real");
-var n_c_imag = document.getElementById("c_imag");
+var n_c_real               = document.getElementById("c_real");
+var n_c_imag               = document.getElementById("c_imag");
+var n_render_running       = document.getElementById("render_running");
+
 // default config
 var config = {
-    width: n_res_x.value,
-    height: n_res_y.value,
-    iterations: n_iterations.value,
-    c_real: n_c_real.value,
-    c_imag: n_c_imag.value,
-    center_real: 0,
-    center_imag: 0,
-    frame_radius: 2,
-    fractal_type: "julia",
+    width             : Number(n_res_x.value),
+    height            : Number(n_res_y.value),
+    iterations        : Number(n_iterations.value),
+    c_real            : Number(n_c_real.value),
+    c_imag            : Number(n_c_imag.value),
+    canvas_width_full : Number(canvas_mandelbrot_full.width),
+    canvas_height_full: Number(canvas_mandelbrot_full.height),
+    canvas_width_zoom : Number(canvas_mandelbrot_zoom.width),
+    canvas_height_zoom: Number(canvas_mandelbrot_zoom.height),
+    center_real       : 0,
+    center_imag       : 0,
+    frame_radius_full : 2,
+    frame_radius_zoom : 0.25,
+    fractal_type      : "julia",
+    do_animation      : false,
 };
+compileAllShaders(config.iterations);
 
 // parameters
-n_res_x.onkeyup = function () {
-    canvas.width = Number(n_res_x.value);
-    config.width = Number(n_res_x.value);
+n_res_x.onkeyup      = function () {
+    canvas_julia.width           = Number(n_res_x.value);
+    canvas_mandelbrot_full.width = Number(n_res_x.value);
+    canvas_mandelbrot_zoom.width = Number(n_res_x.value);
+    config.width                 = Number(n_res_x.value);
 };
-n_res_y.onkeyup = function () {
-    canvas.height = Number(n_res_y.value);
-    config.height = Number(n_res_y.value);
+n_res_y.onkeyup      = function () {
+    canvas_julia.height           = Number(n_res_y.value);
+    canvas_mandelbrot_full.height = Number(n_res_y.value);
+    canvas_mandelbrot_zoom.height = Number(n_res_y.value);
+    config.height                 = Number(n_res_y.value);
 };
 n_iterations.onkeyup = function () {
     config.iterations = Number(n_iterations.value);
-    reCompileShader(config.iterations, config.fractal_type);
+    compileAllShaders(config.iterations);
 };
-n_check_julia.onclick = function () {
-    config.fractal_type = "julia";
-    reCompileShader(config.iterations, config.fractal_type);
-};
-n_check_mandelbrot.onclick = function () {
-    config.fractal_type = "mandelbrot";
-    reCompileShader(config.iterations, config.fractal_type);
-};
-n_c_real.onkeyup = function () { config.c_real = Number(n_c_real.value); };
-n_c_imag.onkeyup = function () { config.c_imag = Number(n_c_imag.value); };
+n_c_real.onkeyup     = function () { config.c_real = Number(n_c_real.value); };
+n_c_imag.onkeyup     = function () { config.c_imag = Number(n_c_imag.value); };
 
 // canvas movement
 (function () {
-    var canvas_is_clicked = false;
-    window.onmousemove = function (e) {
-        a = e;
-        if (canvas_is_clicked) {
-            // only prevent default if we're dragging, to preserve selecting text functionality
-            e.preventDefault();
-            // negate the offset because we're dragging it
-            var center_real_offset = (-(e.movementX / canvas.width) * 2 ) * config.frame_radius;
-            var center_imag_offset = (-(e.movementY / canvas.height) * 2 ) * config.frame_radius;
-            config.center_real += center_real_offset;
-            config.center_imag += center_imag_offset;
+    var canvas_is_clicked_full = false;
+    var canvas_is_clicked_zoom = false;
+
+    function update_position_full(e) {
+        // dragging on full canvas is absolute
+        var center_real_offset = ((e.offsetX / config.canvas_width_full) * 2 - 1) * config.frame_radius_full;
+        var center_imag_offset = ((e.offsetY / config.canvas_height_full) * 2 - 1) * config.frame_radius_full;
+        config.c_real          = center_real_offset;
+        config.c_imag          = center_imag_offset;
+        n_c_real.value         = config.c_real;
+        n_c_imag.value         = config.c_imag;
+    }
+
+    function update_position_zoom(e) {
+        // dragging on zoomed canvas is relative
+        var center_real_offset = (-(e.movementX / config.canvas_width_zoom) * 2) * config.frame_radius_zoom;
+        var center_imag_offset = (-(e.movementY / config.canvas_height_zoom) * 2) * config.frame_radius_zoom;
+        config.c_real += center_real_offset;
+        config.c_imag += center_imag_offset;
+        n_c_real.value         = config.c_real;
+        n_c_imag.value         = config.c_imag;
+    }
+
+    canvas_mandelbrot_full.onmousedown = function (e) {
+        e.preventDefault();
+        canvas_is_clicked_full = true;
+    };
+    canvas_mandelbrot_zoom.onmousedown = function (e) {
+        e.preventDefault();
+        canvas_is_clicked_zoom = true;
+    };
+    window.onmouseup                   = function (e) {
+        canvas_is_clicked_full = false;
+        canvas_is_clicked_zoom = false;
+    };
+    window.onmousemove                 = function (e) {
+        if (canvas_is_clicked_full) {
+            update_position_full(e);
+        }
+        if (canvas_is_clicked_zoom) {
+            update_position_zoom(e);
         }
     };
-    canvas.onmousedown = function () {canvas_is_clicked = true;};
-    window.onmouseup = function () {canvas_is_clicked = false;};
 })();
 // canvas zoom
-canvas.onwheel = function (e) {
+canvas_mandelbrot_full.onwheel = function (e) {
     e.preventDefault();
     if (e.deltaY > 0) {
         // zoom out
-        config.frame_radius *= 1.1;
+        config.frame_radius_zoom *= 1.1;
     } else {
         // zoom in
-        config.frame_radius /= 1.1;
+        config.frame_radius_zoom /= 1.1;
     }
 };
-
+canvas_mandelbrot_zoom.onwheel = canvas_mandelbrot_full.onwheel;
 
 function drawFrame() {
-    // update the size of the webgl part of the canvas
-    context.viewport(0, 0, canvas.width, canvas.height);
 
-    var time = Date.now();
-
-    var dataToSendToGPU = new Float32Array(9);
-    dataToSendToGPU[0] = config.width;
-    dataToSendToGPU[1] = config.height;
+    // check if we're animated
     if (n_check_julia_animated.checked) {
-        dataToSendToGPU[2] = -0.795 + Math.sin(time / 2000) / 40;
-        dataToSendToGPU[3] = 0.2321 + Math.cos(time / 1330) / 40;
-    } else {
-        dataToSendToGPU[2] = Number(config.c_real);
-        dataToSendToGPU[3] = Number(config.c_imag);
+        var time       = Date.now() * 1.2;
+        config.c_real  = -0.79 + Math.sin(time / 2000) / 40;
+        config.c_imag  = 0.2121 + Math.cos(time / 1330) / 40;
+        n_c_real.value = config.c_real;
+        n_c_imag.value = config.c_imag;
     }
-    dataToSendToGPU[4] = 8;
-    dataToSendToGPU[5] = config.center_real - config.frame_radius;
-    dataToSendToGPU[6] = config.center_real + config.frame_radius;
-    dataToSendToGPU[7] = config.center_imag - config.frame_radius;
-    dataToSendToGPU[8] = config.center_imag + config.frame_radius;
 
-    var dataPointerFloatArray = getUniformLocation(program, 'data', context);
-    context.uniform1fv(dataPointerFloatArray, dataToSendToGPU);
-    context.drawArrays(context.TRIANGLE_STRIP, 0, 4);
+    // update the size of the webgl part of the canvas
+    [
+        [context_julia, program_julia],
+        [context_mandelbrot_full, program_mandelbrot_full],
+        [context_mandelbrot_zoom, program_mandelbrot_zoom],
+    ].forEach(function (v, i) {
+        var context = v[0];
+        var program = v[1];
 
-    requestAnimationFrame(drawFrame)
+        context.viewport(0, 0, config.width, config.height);
+
+        var dataToSendToGPU = new Float32Array(8);
+        dataToSendToGPU[0]  = config.width;
+        dataToSendToGPU[1]  = config.height;
+        dataToSendToGPU[2]  = Number(config.c_real);
+        dataToSendToGPU[3]  = Number(config.c_imag);
+        dataToSendToGPU[4]  = config.c_real - config.frame_radius_zoom;
+        dataToSendToGPU[5]  = config.c_real + config.frame_radius_zoom;
+        dataToSendToGPU[6]  = config.c_imag - config.frame_radius_zoom;
+        dataToSendToGPU[7]  = config.c_imag + config.frame_radius_zoom;
+
+        var dataPointerFloatArray = getUniformLocation(program, 'data', context);
+        context.uniform1fv(dataPointerFloatArray, dataToSendToGPU);
+        context.drawArrays(context.TRIANGLE_STRIP, 0, 4);
+    });
+    if (n_render_running.checked) {
+        requestAnimationFrame(drawFrame)
+    }
 }
 requestAnimationFrame(drawFrame);
+n_render_running.onclick = function () {
+    // gotta start it again if it stopped
+    if (n_render_running.checked) {
+        requestAnimationFrame(drawFrame);
+    }
+};

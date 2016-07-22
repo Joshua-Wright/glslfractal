@@ -2,6 +2,8 @@
   "name": "application-name",
   "version": "0.0.1",
   "dependencies": {
+    "babel": "^6.5.2",
+    "babel-core": "^6.11.4",
     "babel-loader": "^6.2.4",
     "gulp": "^3.9.1",
     "jquery": "^3.1.0",
