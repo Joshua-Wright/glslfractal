@@ -11,13 +11,11 @@
     <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" type="text/css" media="screen" href="canvas_demo.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-
 </head>
 <body>
 <div class="config">
-    <h1>Mandelbrot Set</h1>
+    <h1>Fractals</h1>
     Drag with your mose on the first and second boxes to pan around, and zoom with the mousewheel.
-    <br>
     <br>
     The first box is an overview.
     <br>
@@ -25,10 +23,18 @@
     <br>
     The last one shows a Julia set seeded with the complex point under the crosshair of the second box.
     <br>
-    <br>
     Math: <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot Set</a>,
     <a href="https://en.wikipedia.org/wiki/Julia_set">Julia Set</a>.
     <a href="https://github.com/Joshua-Wright/glslfractal">Code on Github</a>
+    <div class="line">
+        Formula:
+        <span class="right wide_column">
+                <input type="radio" name="curve_type" id="formula_normal" checked="">
+                <label class="full_wide" for="formula_normal">z <- z^2 + c</label><br>
+                <input type="radio" name="curve_type" id="formula_inverse_mu">
+                <label class="full_wide" for="formula_inverse_mu">z <- z^2 + 1/c</label><br>
+        </span>
+    </div>
     <div class="line">
         Canvas Resolution:
         <span class="right">
@@ -63,16 +69,10 @@
                 <label for="render_running"></label>
             </span>
     </div>
-    <!--<div class="line">-->
-    <!--label-->
-    <!--<span class="right">-->
-    <!--<input class="wide_num" type="number" id="id" value="default">-->
-    <!--</span>-->
-    <!--</div>-->
 </div>
-<canvas id="canvas_mandelbrot_full" width="500" height="500"></canvas>
-<canvas id="canvas_mandelbrot_zoom" width="500" height="500"></canvas>
-<canvas id="canvas_julia" width="500" height="500"></canvas>
+<canvas id="canvas_mandelbrot_full" width="500" height="500">
+</canvas><canvas id="canvas_mandelbrot_zoom" width="500" height="500">
+</canvas><canvas id="canvas_julia" width="500" height="500"></canvas>
 </body>
 <script src="build/bundle.js"></script>
 </html>

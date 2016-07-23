@@ -6,15 +6,14 @@ html {
 
 div.config {
     font-size: 16px;
-    /*width: 20em;*/
-    width: 400px;
-    float: left;
-    display: inline-block;
+    display: block;
     /*increase line height or else number input boxes collide with each other*/
     line-height: 1.5;
     color: #F8F8F2;
     background: #272822;
     padding: 1em;
+    margin: auto;
+    column-count: 2;
 }
 
 h1 {
@@ -22,10 +21,9 @@ h1 {
     margin-top: 0;
 }
 
-#main_canvas {
-    display: block;
-    float: right;
-    /*float: left;*/
+canvas {
+    display: inline-block;
+    width:33.33333%;
     padding: 0;
     margin: 0;
 }
@@ -56,18 +54,15 @@ div#progress {
 div#progress_bar_container {
     width: 100%;
     height: 2em;
-    /*default to don't display, and we'll manually display it later in the
-    * javascript*/
+    /*default to don't display, and we'll manually display it later in the javascript*/
     display: none;
     margin: 0 0 10px 0;
     background-color: #F8F8F2;
 }
 
 div#progress_bar {
-    /*height: 2em;*/
     height: 100%;
     display: inline-block;
-    /*width: 100%;*/
     width: 70%;
     background-color: #66D9EF;
 }
@@ -110,7 +105,6 @@ div.center {
 
 input.go_button {
     width: 100%;
-    /*width: auto;*/
     padding: 4px;
     background: #F8F8F2;
     border: 3px solid #66D9EF;

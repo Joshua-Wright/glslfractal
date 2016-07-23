@@ -63,15 +63,22 @@ function setupWebglProgram(context, vertexShader, fragmentShader) {
     );
     return program;
 }
+fractal_type = {
+    NORMAL: "cadd(cmul(z,z), c)",
+    INV_MU: "cadd(cmul(z,z), cdiv(complex(1.0,0.0), c))",
+};
 /**
  * setup our shader with our particular options
  * @param context html rendering context
  * @param vertexShader vertex shader belonging to this context
  * @param iterations number of iterations
  * @param fractal_type function name in the glsl code. Currently accepts "mandelbrot" or "julia"
+ * @param type a field from fractal_type
  */
-function reCompileShader(context, vertexShader, iterations, fractal_type) {
+function reCompileShader(context, vertexShader, iterations, fractal_type, type) {
     var header = "#define NUMBER_OF_ITERATIONS " + iterations + "\n";
+    // header += "#define FRAC_EXPRESSION cadd(cmul(z,z), c)\n";
+    header += "#define FRAC_EXPRESSION " + type + "\n";
     if (fractal_type == "mandelbrot full") {
         header += "#define FRACTAL_FUNC mandelbrot\n";
         header += "#define SHOW_PREVIEW\n";
@@ -106,10 +113,10 @@ var vertexShader_julia           = compileShader(vertexShaderString, context_jul
 var program_julia;
 var program_mandelbrot_full;
 var program_mandelbrot_zoom;
-function compileAllShaders(iterations) {
-    program_julia           = reCompileShader(context_julia, vertexShader_julia, iterations, "julia");
-    program_mandelbrot_full = reCompileShader(context_mandelbrot_full, vertexShader_mandelbrot_full, iterations, "mandelbrot full");
-    program_mandelbrot_zoom = reCompileShader(context_mandelbrot_zoom, vertexShader_mandelbrot_zoom, iterations, "mandelbrot zoom");
+function compileAllShaders(iterations, formula) {
+    program_julia           = reCompileShader(context_julia, vertexShader_julia, iterations, "julia", formula);
+    program_mandelbrot_full = reCompileShader(context_mandelbrot_full, vertexShader_mandelbrot_full, iterations, "mandelbrot full", formula);
+    program_mandelbrot_zoom = reCompileShader(context_mandelbrot_zoom, vertexShader_mandelbrot_zoom, iterations, "mandelbrot zoom", formula);
 }
 
 
@@ -121,11 +128,14 @@ var n_check_julia_animated = document.getElementById("fractal_julia_animated");
 var n_c_real               = document.getElementById("c_real");
 var n_c_imag               = document.getElementById("c_imag");
 var n_render_running       = document.getElementById("render_running");
+var n_formula_normal       = document.getElementById("formula_normal");
+var n_formula_inverse_mu   = document.getElementById("formula_inverse_mu");
 
 // default config
 var config = {
     width             : Number(n_res_x.value),
     height            : Number(n_res_y.value),
+    formula           : fractal_type.NORMAL,
     iterations        : Number(n_iterations.value),
     c_real            : Number(n_c_real.value),
     c_imag            : Number(n_c_imag.value),
@@ -133,14 +143,12 @@ var config = {
     canvas_height_full: Number(canvas_mandelbrot_full.height),
     canvas_width_zoom : Number(canvas_mandelbrot_zoom.width),
     canvas_height_zoom: Number(canvas_mandelbrot_zoom.height),
-    center_real       : 0,
-    center_imag       : 0,
     frame_radius_full : 2,
-    frame_radius_zoom : 0.25,
+    frame_radius_zoom : 0.125,
     fractal_type      : "julia",
     do_animation      : false,
 };
-compileAllShaders(config.iterations);
+compileAllShaders(config.iterations, config.formula);
 
 // parameters
 n_res_x.onkeyup      = function () {
@@ -161,6 +169,15 @@ n_iterations.onkeyup = function () {
 };
 n_c_real.onkeyup     = function () { config.c_real = Number(n_c_real.value); };
 n_c_imag.onkeyup     = function () { config.c_imag = Number(n_c_imag.value); };
+
+n_formula_normal.onclick     = function () {
+    config.formula = fractal_type.NORMAL;
+    compileAllShaders(config.iterations, config.formula);
+};
+n_formula_inverse_mu.onclick = function () {
+    config.formula = fractal_type.INV_MU;
+    compileAllShaders(config.iterations, config.formula);
+};
 
 // canvas movement
 (function () {
@@ -268,3 +285,20 @@ n_render_running.onclick = function () {
         requestAnimationFrame(drawFrame);
     }
 };
+
+// set canvases to one-third of the screen
+(function () {
+    var size                  = Math.floor(window.innerWidth / 3);
+    config.width              = size;
+    config.height             = size;
+    n_res_x.value             = size;
+    n_res_y.value             = size;
+    config.canvas_height_full = size;
+    config.canvas_width_full  = size;
+    config.canvas_height_zoom = size;
+    config.canvas_width_zoom  = size;
+    [canvas_julia, canvas_mandelbrot_full, canvas_mandelbrot_zoom].forEach(function (v, i) {
+        v.width  = size;
+        v.height = size;
+    })
+})();
