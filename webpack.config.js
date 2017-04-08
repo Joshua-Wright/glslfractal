@@ -2,17 +2,18 @@
  * Created by j0sh on 7/19/16.
  */
 var path = require('path');
+var ClosureCompilerPlugin = require('closure-compiler-webpack-plugin');
+
 
 module.exports = {
     entry: "./js/mandelbrot",
     output: {
         path: __dirname,
-        filename: "build/bundle.js",
-        sourceMapFilename: "sourcemap"
+        filename: "build/bundle.js"
     },
     resolve: {
         // Allow to omit extensions when requiring these files
-        extensions: ['', '.js'],
+        // extensions: ['', '.js'],
         alias: {
             // assets:     path.resolve(__dirname, 'assets'),
             javascript: path.resolve(__dirname, 'js'),
@@ -23,16 +24,14 @@ module.exports = {
     module: {
         loaders: [
             {
-                test: /\.js$/,
-                exclude: /node_modules/,
-                loader: "babel-loader"
-            },
-            {
                 test: /\.glsl$/,
                 exclude: /node_modules/,
                 loader: "raw-loader"
             }
         ]
     },
-    devtool: "#inline-source-map"
+    devtool: "source-map",
+    plugins: [
+        new ClosureCompilerPlugin({compilation_level: 'ADVANCED'})
+    ]
 };

@@ -63,10 +63,12 @@ function setupWebglProgram(context, vertexShader, fragmentShader) {
     );
     return program;
 }
+
 fractal_type = {
     NORMAL: "cadd(cmul(z,z), c)",
-    INV_MU: "cadd(cmul(z,z), cdiv(complex(1.0,0.0), c))",
+    INV_MU: "cadd(cmul(z,z), cdiv(complex(1.0,0.0), c))"
 };
+
 /**
  * setup our shader with our particular options
  * @param context html rendering context
@@ -146,7 +148,7 @@ var config = {
     frame_radius_full : 2,
     frame_radius_zoom : 0.125,
     fractal_type      : "julia",
-    do_animation      : false,
+    do_animation      : false
 };
 compileAllShaders(config.iterations, config.formula);
 
@@ -180,51 +182,50 @@ n_formula_inverse_mu.onclick = function () {
 };
 
 // canvas movement
-(function () {
-    var canvas_is_clicked_full = false;
-    var canvas_is_clicked_zoom = false;
+var canvas_is_clicked_full = false;
+var canvas_is_clicked_zoom = false;
 
-    function update_position_full(e) {
-        // dragging on full canvas is absolute
-        var center_real_offset = ((e.offsetX / config.canvas_width_full) * 2 - 1) * config.frame_radius_full;
-        var center_imag_offset = ((e.offsetY / config.canvas_height_full) * 2 - 1) * config.frame_radius_full;
-        config.c_real          = center_real_offset;
-        config.c_imag          = center_imag_offset;
-        n_c_real.value         = config.c_real;
-        n_c_imag.value         = config.c_imag;
+function update_position_full(e) {
+    // dragging on full canvas is absolute
+    var center_real_offset = ((e.offsetX / config.canvas_width_full) * 2 - 1) * config.frame_radius_full;
+    var center_imag_offset = ((e.offsetY / config.canvas_height_full) * 2 - 1) * config.frame_radius_full;
+    config.c_real          = center_real_offset;
+    config.c_imag          = center_imag_offset;
+    n_c_real.value         = config.c_real;
+    n_c_imag.value         = config.c_imag;
+}
+
+function update_position_zoom(e) {
+    // dragging on zoomed canvas is relative
+    var center_real_offset = (-(e.movementX / config.canvas_width_zoom) * 2) * config.frame_radius_zoom;
+    var center_imag_offset = (-(e.movementY / config.canvas_height_zoom) * 2) * config.frame_radius_zoom;
+    config.c_real += center_real_offset;
+    config.c_imag += center_imag_offset;
+    n_c_real.value         = config.c_real;
+    n_c_imag.value         = config.c_imag;
+}
+
+canvas_mandelbrot_full.onmousedown = function (e) {
+    e.preventDefault();
+    canvas_is_clicked_full = true;
+};
+canvas_mandelbrot_zoom.onmousedown = function (e) {
+    e.preventDefault();
+    canvas_is_clicked_zoom = true;
+};
+window.onmouseup                   = function (e) {
+    canvas_is_clicked_full = false;
+    canvas_is_clicked_zoom = false;
+};
+window.onmousemove                 = function (e) {
+    if (canvas_is_clicked_full) {
+        update_position_full(e);
     }
-
-    function update_position_zoom(e) {
-        // dragging on zoomed canvas is relative
-        var center_real_offset = (-(e.movementX / config.canvas_width_zoom) * 2) * config.frame_radius_zoom;
-        var center_imag_offset = (-(e.movementY / config.canvas_height_zoom) * 2) * config.frame_radius_zoom;
-        config.c_real += center_real_offset;
-        config.c_imag += center_imag_offset;
-        n_c_real.value         = config.c_real;
-        n_c_imag.value         = config.c_imag;
+    if (canvas_is_clicked_zoom) {
+        update_position_zoom(e);
     }
+};
 
-    canvas_mandelbrot_full.onmousedown = function (e) {
-        e.preventDefault();
-        canvas_is_clicked_full = true;
-    };
-    canvas_mandelbrot_zoom.onmousedown = function (e) {
-        e.preventDefault();
-        canvas_is_clicked_zoom = true;
-    };
-    window.onmouseup                   = function (e) {
-        canvas_is_clicked_full = false;
-        canvas_is_clicked_zoom = false;
-    };
-    window.onmousemove                 = function (e) {
-        if (canvas_is_clicked_full) {
-            update_position_full(e);
-        }
-        if (canvas_is_clicked_zoom) {
-            update_position_zoom(e);
-        }
-    };
-})();
 // canvas zoom
 canvas_mandelbrot_full.onwheel = function (e) {
     e.preventDefault();
@@ -287,18 +288,16 @@ n_render_running.onclick = function () {
 };
 
 // set canvases to one-third of the screen
-(function () {
-    var size                  = Math.floor(window.innerWidth / 3);
-    config.width              = size;
-    config.height             = size;
-    n_res_x.value             = size;
-    n_res_y.value             = size;
-    config.canvas_height_full = size;
-    config.canvas_width_full  = size;
-    config.canvas_height_zoom = size;
-    config.canvas_width_zoom  = size;
-    [canvas_julia, canvas_mandelbrot_full, canvas_mandelbrot_zoom].forEach(function (v, i) {
-        v.width  = size;
-        v.height = size;
-    })
-})();
+var size                  = Math.floor(window.innerWidth / 3);
+config.width              = size;
+config.height             = size;
+n_res_x.value             = size;
+n_res_y.value             = size;
+config.canvas_height_full = size;
+config.canvas_width_full  = size;
+config.canvas_height_zoom = size;
+config.canvas_width_zoom  = size;
+[canvas_julia, canvas_mandelbrot_full, canvas_mandelbrot_zoom].forEach(function (v, i) {
+    v.width  = size;
+    v.height = size;
+});
