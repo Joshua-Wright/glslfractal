@@ -2,7 +2,7 @@
  * Created by j0sh on 7/19/16.
  */
 var path = require('path');
-var ClosureCompilerPlugin = require('closure-compiler-webpack-plugin');
+var UglifyJSPlugin = require('uglifyjs-webpack-plugin');
 
 
 module.exports = {
@@ -30,8 +30,7 @@ module.exports = {
             }
         ]
     },
-    devtool: "source-map",
     plugins: [
-        new ClosureCompilerPlugin({compilation_level: 'ADVANCED'})
+      new UglifyJSPlugin()
     ]
 };
