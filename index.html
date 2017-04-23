@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WebGL Fractals</title>
+    <!-- this meta viewport tag makes stuff work on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--make the chrome nav bar match the background-->
+    <meta name="theme-color" content="#272822">
+    <link rel="icon" href="/favicon.png">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" media="screen" href="canvas_demo.css">
+</head>
+<body>
+<div class="config">
+    <h1>Fractals</h1>
+    Drag with your mouse on the first and second boxes to pan around, and zoom with the mousewheel.
+    <br>
+    The first box is an overview.
+    <br>
+    The second one shows a zoomed-in view of a particular area.
+    <br>
+    The last one shows a Julia set seeded with the complex point under the crosshair of the second box.
+    <br>
+    Math: <a href="https://en.wikipedia.org/wiki/Mandelbrot_set">Mandelbrot Set</a>,
+    <a href="https://en.wikipedia.org/wiki/Julia_set">Julia Set</a>.
+    <a href="https://github.com/Joshua-Wright/glslfractal">Code on Github</a>
+    <div class="line">
+        Formula:
+        <span class="right wide_column">
+                <input type="radio" name="curve_type" id="formula_normal" checked="">
+                <label class="full_wide" for="formula_normal">z <- z^2 + c</label><br>
+                <input type="radio" name="curve_type" id="formula_inverse_mu">
+                <label class="full_wide" for="formula_inverse_mu">z <- z^2 + 1/c</label><br>
+        </span>
+    </div>
+    <div class="line">
+        Canvas Resolution:
+        <span class="right">
+            <input class="wide_num" type="number" id="res_x" value="500"> x
+            <input class="wide_num" type="number" id="res_y" value="500">
+            </span>
+    </div>
+    <div class="line">
+        Iterations:
+        <span class="right">
+            <input class="wide_num" type="number" id="iterations" value="512">
+        </span>
+    </div>
+    <div class="line">
+        c
+        <span class="right">
+            <input class="wide_num" type="number" id="c_real" value="-0.8"> +
+            <input class="wide_num" type="number" id="c_imag" value="0.156"> i
+        </span>
+    </div>
+    <div class="line">
+        Automatic movement (uncheck to drag)
+        <span class="right">
+                <input type="checkbox" id="fractal_julia_animated" checked="checked">
+                <label for="fractal_julia_animated"></label>
+            </span>
+    </div>
+    <div class="line">
+        Run render (uncheck to pause rendering)
+        <span class="right">
+                <input type="checkbox" id="render_running" checked="checked">
+                <label for="render_running"></label>
+            </span>
+    </div>
+</div>
+<canvas id="canvas_mandelbrot_full" width="500" height="500">
+</canvas><canvas id="canvas_mandelbrot_zoom" width="500" height="500">
+</canvas><canvas id="canvas_julia" width="500" height="500"></canvas>
+</body>
+<script src="build/bundle.js"></script>
+</html>
